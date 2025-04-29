@@ -8,6 +8,7 @@
   <meta name="author" content="TranMarket Team">
   <title>TranMarket - Easy Trading</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body class="bg-gradient-to-r from-purple-600 to-blue-500 min-h-screen flex flex-col">
 
@@ -63,18 +64,28 @@
     </div>
   </section>
 
-  <!-- Pi Wallet Connect Mock -->
+  <!-- Pi Wallet Connect Real -->
   <section class="py-16 bg-white text-center">
     <h3 class="text-2xl font-bold text-purple-600 mb-4">Connect Pi Wallet</h3>
-    <button onclick="connectWallet()" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded-full shadow">
-      Connect Pi Wallet
+    <button onclick="loginWithPi()" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded-full shadow">
+      Connect with Pi
     </button>
     <p id="walletStatus" class="mt-4 text-gray-600"></p>
   </section>
 
   <script>
-    function connectWallet() {
-      document.getElementById('walletStatus').textContent = "✅ Wallet connected (mock)!";
+    function loginWithPi() {
+      if (!window.Pi) {
+        document.getElementById('walletStatus').textContent = "❌ Pi SDK not available. Please open in Pi Browser.";
+        return;
+      }
+      Pi.authenticate([], function(auth) {
+        if (auth.user && auth.user.uid) {
+          document.getElementById('walletStatus').textContent = `✅ Logged in as: ${auth.user.uid}`;
+        } else {
+          document.getElementById('walletStatus').textContent = "❌ Login failed or cancelled.";
+        }
+      });
     }
   </script>
 
