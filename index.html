@@ -1,43 +1,110 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Buôn Bán Vặt Marketplace</title>
-  <style>
-    body {
-      background-color: #f9f9f9;
-      text-align: center;
-      font-family: Arial, sans-serif;
-      margin-top: 100px;
-    }
-    h1 {
-      font-size: 36px;
-      color: #333;
-    }
-    p {
-      font-size: 18px;
-      color: #666;
-      margin-top: 20px;
-    }
-    a {
-      display: inline-block;
-      margin-top: 30px;
-      padding: 12px 24px;
-      background-color: #0070f3;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 18px;
-      transition: background-color 0.3s ease;
-    }
-    a:hover {
-      background-color: #0059c1;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Easy Trading – Own Your Digital Assets with TranMarket">
+  <meta name="keywords" content="TranMarket, Pi Network, digital assets, marketplace, Pi payments">
+  <meta name="author" content="TranMarket Team">
+  <title>TranMarket - Easy Trading</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <h1>Chào mừng bạn đến với Buôn Bán Vặt Marketplace!</h1>
-  <p>Đây là cửa hàng linh hoạt, cung cấp nhiều loại hàng hóa, thực vật và nhu yếu phẩm hàng ngày — được vận hành bởi Pi Network.</p>
-  <a href="https://market.cz" target="_blank">Truy cập Chợ Buôn Bán Vặt</a>
+<body class="bg-gradient-to-r from-purple-600 to-blue-500 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between p-6 bg-white shadow-md">
+    <div class="flex items-center space-x-3">
+      <span class="text-3xl">🛒</span>
+      <h1 class="text-2xl font-bold text-gray-800">TranMarket</h1>
+    </div>
+    <nav>
+      <ul class="flex space-x-6">
+        <li><a href="#about" class="text-gray-600 hover:text-purple-600">About</a></li>
+        <li><a href="#products" class="text-gray-600 hover:text-purple-600">Products</a></li>
+        <li><a href="#contact" class="text-gray-600 hover:text-purple-600">Contact</a></li>
+        <li><a href="#login" class="text-gray-600 hover:text-purple-600">Login</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="flex flex-col items-center justify-center text-center flex-grow">
+    <h2 class="text-white text-4xl md:text-6xl font-extrabold mb-4">Easy Trading</h2>
+    <p class="text-white text-lg md:text-2xl mb-8">Own Your Digital Assets</p>
+    <a href="#products" class="bg-white text-purple-600 font-semibold py-3 px-6 rounded-full shadow hover:bg-gray-100 transition">Explore Now</a>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-16 bg-white">
+    <div class="container mx-auto px-6 text-center">
+      <h3 class="text-3xl font-bold text-purple-600 mb-6">About TranMarket</h3>
+      <p class="text-gray-600 text-lg">TranMarket empowers you to trade, own, and manage your digital assets easily and securely. We believe in simplicity, transparency, and trust.</p>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section id="products" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6">
+      <h3 class="text-3xl font-bold text-center text-blue-600 mb-10">Featured Products</h3>
+      <div class="grid gap-8 md:grid-cols-3">
+        <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+          <h4 class="text-xl font-bold mb-2">Digital Asset #1</h4>
+          <p class="text-gray-600">Description about this amazing asset.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+          <h4 class="text-xl font-bold mb-2">Digital Asset #2</h4>
+          <p class="text-gray-600">Description about this amazing asset.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+          <h4 class="text-xl font-bold mb-2">Digital Asset #3</h4>
+          <p class="text-gray-600">Description about this amazing asset.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pi Wallet Connect Mock -->
+  <section class="py-16 bg-white text-center">
+    <h3 class="text-2xl font-bold text-purple-600 mb-4">Connect Pi Wallet</h3>
+    <button onclick="connectWallet()" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded-full shadow">
+      Connect Pi Wallet
+    </button>
+    <p id="walletStatus" class="mt-4 text-gray-600"></p>
+  </section>
+
+  <script>
+    function connectWallet() {
+      document.getElementById('walletStatus').textContent = "✅ Wallet connected (mock)!";
+    }
+  </script>
+
+  <!-- Login/Register Section -->
+  <section id="login" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6 max-w-md bg-white rounded-lg shadow p-8">
+      <h3 class="text-2xl font-bold text-center text-purple-600 mb-6">Login to TranMarket</h3>
+      <form class="space-y-4">
+        <input type="text" placeholder="Username" class="w-full px-4 py-2 border rounded">
+        <input type="password" placeholder="Password" class="w-full px-4 py-2 border rounded">
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+          Login
+        </button>
+        <p class="text-center text-gray-600 text-sm">Don't have an account? <a href="#" class="text-blue-600 underline">Register</a></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-16 bg-white">
+    <div class="container mx-auto px-6 text-center">
+      <h3 class="text-3xl font-bold text-purple-600 mb-6">Get in Touch</h3>
+      <p class="text-gray-600">Have questions or partnership ideas? Contact us at <a href="mailto:contact@tranmarket.cz" class="text-blue-600 underline">contact@tranmarket.cz</a>.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white text-center py-6">
+    <p>&copy; 2025 TranMarket. All rights reserved.</p>
+  </footer>
+
 </body>
 </html>
