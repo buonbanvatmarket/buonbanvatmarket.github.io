@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TranMarket Pi SDK Test</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
@@ -25,43 +25,24 @@
   <button onclick="payWithPi()">Test Pi Payment</button>
 
   <script>
-    // Initialize Pi SDK in sandbox mode
+    // Khởi tạo Pi SDK trong chế độ sandbox
     Pi.init({ version: "2.0", sandbox: true });
 
     function loginWithPi() {
-      Pi.authenticate([], {
-        onSuccess: function(auth) {
-          alert("Authenticated: " + JSON.stringify(auth));
-        },
-        onFailure: function(error) {
-          alert("Login failed: " + error);
-        }
+      Pi.authenticate([], function onSuccess(auth) {
+        alert("Đăng nhập thành công: " + JSON.stringify(auth));
+      }, function onFailure(error) {
+        alert("Đăng nhập thất bại: " + error);
       });
     }
 
     function payWithPi() {
       Pi.createPayment({
         amount: 3.14,
-        memo: "Test payment",
-        metadata: { purpose: "demo" },
-
+        memo: "Test thanh toán Pi",
+        metadata: { type: "test", item: "demo" }
+      }, {
         onReadyForServerApproval: function(paymentId) {
-          alert("Ready for server approval: " + paymentId);
+          console.log("Ready for server approval", paymentId);
         },
-
-        onReadyForServerCompletion: function(paymentId, txid) {
-          alert("Ready for completion: " + paymentId + " | TxID: " + txid);
-        },
-
-        onCancel: function(paymentId) {
-          alert("Payment cancelled: " + paymentId);
-        },
-
-        onError: function(error, paymentId) {
-          alert("Error: " + error + " | ID: " + paymentId);
-        }
-      });
-    }
-  </script>
-</body>
-</html>
+        onReady
