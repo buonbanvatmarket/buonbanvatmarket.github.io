@@ -1,64 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TranMarket Pi SDK Test</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding-top: 50px;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TranMarket Pi SDK Test</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>TranMarket Pi SDK Test</h1>
+  <button onclick="loginWithPi()">Login with Pi</button>
+  <button onclick="payWithPi()">Test Pi Payment</button>
 
-      button {
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        margin: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>TranMarket Pi SDK Test</h1>
-    <button onclick="loginWithPi()">Login with Pi</button>
-    <button onclick="payWithPi()">Test Pi Payment</button>
+  <script>
+    // Initialize Pi SDK in sandbox mode
+    Pi.init({ version: "2.0", sandbox: true });
 
-    <script>
-      // Initialize Pi SDK in sandbox mode
-      Pi.init({ version: "2.0", sandbox: true });
+    function loginWithPi() {
+      Pi.authenticate([], {
+        onSuccess: function(auth) {
+          alert("Authenticated: " + JSON.stringify(auth));
+        },
+        onFailure: function(error) {
+          alert("Login failed: " + error);
+        }
+      });
+    }
 
-      function loginWithPi() {
-        Pi.authenticate(["payments"], {
-          onSuccess: function (auth) {
-            alert("Authenticated: " + JSON.stringify(auth));
-          },
-          onFailure: function (error) {
-            alert("Login failed: " + error);
-          },
-        });
-      }
+    function payWithPi() {
+      Pi.createPayment({
+        amount: 3.14,
+        memo: "Test payment",
+        metadata: { purpose: "demo" },
 
-      function payWithPi() {
-        Pi.createPayment({
-          amount: 3.14,
-          memo: "Test payment",
-          metadata: { purpose: "demo" },
-          onReadyForServerApproval: function (paymentId) {
-            alert("Ready for server approval: " + paymentId);
-          },
-          onReadyForServerCompletion: function (paymentId, txid) {
-            alert("Ready for completion: " + paymentId + " | TxID: " + txid);
-          },
-          onCancel: function (paymentId) {
-            alert("Payment cancelled: " + paymentId);
-          },
-          onError: function (error, paymentId) {
-            alert("Error: " + error + " | ID: " + paymentId);
-          },
-        });
-      }
-    </script>
-  </body>
+        onReadyForServerApproval: function(paymentId) {
+          alert("Ready for server approval: " + paymentId);
+        },
+
+        onReadyForServerCompletion: function(paymentId, txid) {
+          alert("Ready for completion: " + paymentId + " | TxID: " + txid);
+        },
+
+        onCancel: function(paymentId) {
+          alert("Payment cancelled: " + paymentId);
+        },
+
+        onError: function(error, paymentId) {
+          alert("Error: " + error + " | ID: " + paymentId);
+        }
+      });
+    }
+  </script>
+</body>
 </html>
