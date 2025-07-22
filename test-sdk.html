@@ -25,7 +25,13 @@
   <button onclick="testPayment()">💰 Test Thanh Toán</button>
 
   <script>
-    // Hàm xử lý login
+    // ⚠️ CẦN KHỞI TẠO SDK TRƯỚC
+    Pi.init({
+      version: "2.0",
+      sandbox: false // nếu cần test thử với testnet thì đổi thành true
+    });
+
+    // Hàm login
     async function loginWithPi() {
       try {
         const scopes = ['username'];
@@ -38,7 +44,7 @@
       }
     }
 
-    // Hàm xử lý thanh toán
+    // Hàm thanh toán
     async function testPayment() {
       try {
         const paymentData = {
@@ -53,12 +59,9 @@
         const payment = await Pi.createPayment(paymentData, {
           onReadyForServerApproval: function(paymentId) {
             alert("📤 Gửi lên server phê duyệt: " + paymentId);
-            console.log("Server approval ID:", paymentId);
-            // Trẫm có thể gọi API backend ở đây nếu cần
           },
           onReadyForServerCompletion: function(paymentId, txid) {
             alert("🎉 Giao dịch hoàn tất! TXID: " + txid);
-            console.log("TXID:", txid);
           },
           onCancel: function() {
             alert("❌ Người dùng đã huỷ giao dịch.");
@@ -74,7 +77,6 @@
       }
     }
 
-    // Hàm kiểm tra giao dịch chưa hoàn tất nếu có
     function onIncompletePaymentFound(payment) {
       alert("⚠️ Giao dịch chưa hoàn tất được tìm thấy: " + payment.identifier);
       console.log("Giao dịch cũ:", payment);
