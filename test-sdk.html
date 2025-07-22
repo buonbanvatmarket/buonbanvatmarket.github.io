@@ -13,50 +13,48 @@
     <button id="pay-button">💸 Thanh Toán Test</button>
 
     <script>
-      // 🧠 1. Initialize SDK — thêm scope "payments"
-      Pi.init({
-        version: "2.0",
-        sandbox: true,
-        appId: "buonbanvatmarket",
-        scopes: ["username", "payments"], // Phải có "payments"
-      });
+      window.addEventListener("load", () => {
+        if (window.Pi) {
+          Pi.init({
+            version: "2.0",
+            sandbox: true,
+            appId: "buonbanvatmarket",
+            scopes: ["username", "payments"],
+          });
 
-      // 🧪 2. Login Handler
-      document.getElementById("login-button").addEventListener("click", () => {
-        Pi.authenticate(
-          ["username", "payments"],
-          function (auth) {
-            alert("Đăng nhập thành công:\n" + JSON.stringify(auth));
-          },
-          function (error) {
-            alert("Login failed: " + error);
-          }
-        );
-      });
+          console.log("✅ Pi SDK initialized!");
+        } else {
+          alert("❌ Pi SDK chưa sẵn sàng. Vui lòng tải lại bằng Pi Browser.");
+        }
 
-      // 💳 3. Payment Handler
-      document.getElementById("pay-button").addEventListener("click", () => {
-        Pi.createPayment(
-          {
-            amount: 0.001,
-            memo: "Thanh toán test Pi SDK",
-            metadata: { item: "Test SDK" },
-          },
-          {
-            onReadyForServerApproval: function (paymentId) {
-              alert("Ready for server approval: " + paymentId);
+        // Nút Login
+        document.getElementById("login-button").addEventListener("click", () => {
+          Pi.authenticate(
+            ["username", "payments"],
+            (auth) => alert("✅ Đăng nhập thành công:\n" + JSON.stringify(auth)),
+            (error) => alert("❌ Login thất bại: " + error)
+          );
+        });
+
+        // Nút Thanh toán
+        document.getElementById("pay-button").addEventListener("click", () => {
+          Pi.createPayment(
+            {
+              amount: 0.001,
+              memo: "Test SDK thanh toán",
+              metadata: { item: "TestItem" },
             },
-            onReadyForServerCompletion: function (paymentId, txid) {
-              alert("Ready for server completion: " + paymentId + "\nTXID: " + txid);
-            },
-            onCancel: function (paymentId) {
-              alert("Thanh toán bị huỷ: " + paymentId);
-            },
-            onError: function (error, payment) {
-              alert("Thanh toán lỗi: " + error);
-            },
-          }
-        );
+            {
+              onReadyForServerApproval: (paymentId) =>
+                alert("🟡 Ready for Approval: " + paymentId),
+              onReadyForServerCompletion: (paymentId, txid) =>
+                alert("🟢 Thành công: " + paymentId + "\nTXID: " + txid),
+              onCancel: (paymentId) => alert("⚪ Bị huỷ: " + paymentId),
+              onError: (err, payment) =>
+                alert("❌ Thanh toán lỗi: " + err + "\nChi tiết: " + JSON.stringify(payment)),
+            }
+          );
+        });
       });
     </script>
   </body>
