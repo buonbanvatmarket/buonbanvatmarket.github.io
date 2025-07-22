@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tranmusickingdom SDK Test</title>
+  <meta charset="UTF-8">
+  <title>BuonBanVat SDK Test</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
-  <h1>🛒 Tranmusickingdom SDK Test</h1>
+  <h1>🛒 BuonBanVat SDK Test</h1>
   <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
 
-  <button onclick="login()">Login with Pi</button>
-  <button onclick="pay()">Test Payment</button>
+  <button onclick="onLogin()">🔑 Login Pi</button>
+  <button onclick="onPay()">💸 Thanh Toán Test</button>
 
   <script>
-    // ⚠️ KHỞI TẠO SDK
+    // KHỞI TẠO SDK SỚM NHẤT
     Pi.init({
       version: "2.0",
       sandbox: true
     });
 
-    async function login() {
+    // LOGIN
+    async function onLogin() {
       try {
         const scopes = ['username', 'payments'];
-        const authResult = await Pi.authenticate(scopes);
-        alert(`Đăng nhập thành công: ${authResult.user.username}`);
+        const result = await Pi.authenticate(scopes);
+        alert("Đăng nhập thành công: " + result.user.username);
       } catch (error) {
         alert("Login failed: " + error);
       }
     }
 
-    async function pay() {
+    // THANH TOÁN
+    async function onPay() {
       const paymentData = {
         amount: 0.01,
-        memo: "Test payment from Tranmusickingdom",
-        metadata: { purpose: "test", app: "Tranmusickingdom" }
+        memo: "Test payment BuonBanVat",
+        metadata: { purpose: "test" }
       };
 
       try {
