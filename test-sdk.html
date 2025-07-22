@@ -1,82 +1,53 @@
+<!-- test-sdk.html (chạy trong Pi Browser) -->
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>BuonBanVat SDK Test</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <style>
-    body { font-family: sans-serif; text-align: center; padding: 30px; }
-    button { font-size: 20px; margin: 10px; padding: 10px 20px; }
-  </style>
-</head>
-<body>
-  <h1>🛒 BuonBanVat SDK Test</h1>
-  <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
+  <head>
+    <title>Tranmusickingdom SDK Test</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  </head>
+  <body>
+    <h1>🎶 Tranmusickingdom SDK Test</h1>
+    <button onclick="login()">Đăng nhập</button>
+    <button onclick="pay()">Test thanh toán</button>
 
-  <button onclick="login()">🔐 Login Pi</button>
-  <button onclick="makePayment()">💰 Test Thanh Toán</button>
+    <script>
+      Pi.init({ version: "2.0", sandbox: false }); // Đặt true nếu test không cần ví thật
 
-  <script>
-    // 🛠️ Sửa lỗi "SDK was not initialized"
-    function waitForPiAndInit(maxWait = 5000) {
-      const start = Date.now();
-      const checkPi = () => {
-        if (window.Pi) {
-          Pi.init({ version: "2.0", sandbox: false });
-          console.log("✅ Pi SDK Initialized!");
-        } else if (Date.now() - start < maxWait) {
-          setTimeout(checkPi, 100);
-        } else {
-          alert("❌ Không khởi tạo được Pi SDK. Hãy chắc chắn mở bằng Pi Browser (pi://...)");
+      async function login() {
+        try {
+          const user = await Pi.authenticate(["username"], onIncomplete);
+          alert("✅ Đăng nhập thành công: " + user.username);
+        } catch (error) {
+          alert("❌ Lỗi đăng nhập: " + error);
         }
-      };
-      checkPi();
-    }
-
-    window.addEventListener("load", waitForPiAndInit);
-
-    async function login() {
-      try {
-        const scopes = ['username', 'payments'];
-        const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
-        alert(`✅ Đăng nhập thành công: ${authResult.user.username}`);
-      } catch (err) {
-        alert(`❌ Lỗi đăng nhập: ${err}`);
       }
-    }
 
-    async function makePayment() {
-      const paymentData = {
-        amount: 0.01,
-        memo: "Test thanh toán Pi",
-        metadata: { purpose: "test", app: "BuonBanVat" }
-      };
+      async function pay() {
+        const paymentData = {
+          amount: 0.01,
+          memo: "Test for Tranmusickingdom",
+          metadata: { app: "Tranmusickingdom", test: true }
+        };
 
-      try {
-        const payment = await Pi.createPayment(paymentData, {
+        Pi.createPayment(paymentData, {
           onReadyForServerApproval: function (paymentId) {
-            console.log("✅ Sẵn sàng duyệt:", paymentId);
-          },
-          onReadyForServerCompletion: function (paymentId, txid) {
-            console.log("✅ Sẵn sàng hoàn tất:", paymentId, txid);
+            alert("✅ Giao dịch đã tạo: " + paymentId);
           },
           onCancel: function (paymentId) {
             alert("❌ Giao dịch bị hủy.");
           },
-          onError: function (error, payment) {
-            alert("❌ Lỗi giao dịch: " + error);
+          onError: function (error) {
+            alert("🚫 Lỗi thanh toán: " + error);
+          },
+          onReadyForServerCompletion: function (paymentId, txid) {
+            alert("✅ Giao dịch sẵn sàng hoàn tất: " + txid);
           }
         });
-
-        alert("✅ Giao dịch đã tạo: " + payment.identifier);
-      } catch (err) {
-        alert("❌ Không thể tạo giao dịch: " + err);
       }
-    }
 
-    function onIncompletePaymentFound(payment) {
-      console.warn("⚠️ Incomplete payment found:", payment);
-    }
-  </script>
-</body>
+      function onIncomplete(paymentId) {
+        alert("⚠️ Pi chưa hoàn tất bước xác minh!");
+      }
+    </script>
+  </body>
 </html>
