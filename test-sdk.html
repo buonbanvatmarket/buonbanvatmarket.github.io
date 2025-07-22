@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Tranmusickingdom SDK Test</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
-<body>
-  <h1>🎶 Tranmusickingdom SDK Test</h1>
-  <button onclick="login()">Đăng nhập</button>
-  <button onclick="pay()">Test thanh toán</button>
+  <head>
+    <title>Test Pi SDK - Tranmusickingdom</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  </head>
+  <body>
+    <h2>🧪 Test SDK Pi App – Tranmusickingdom</h2>
+    <button onclick="login()">🔐 Đăng nhập Pi</button>
+    <button onclick="pay()">💸 Thanh toán 0.01 Pi</button>
 
-  <script>
-    Pi.init({ version: "2.0", sandbox: false });
+    <script>
+      // Khởi tạo SDK (không dùng sandbox, để test thanh toán thật)
+      Pi.init({ version: "2.0" });
 
-    async function login() {
-      try {
-        const user = await Pi.authenticate(["username"], onIncomplete);
-        alert("✅ Đăng nhập thành công: " + user.username);
-        console.log("User:", user);
-      } catch (error) {
-        alert("❌ Lỗi đăng nhập: " + error);
-        console.error(error);
+      // Đăng nhập
+      function login() {
+        Pi.authenticate(['username'], function(auth) {
+          console.log('Đăng nhập thành công:', auth);
+          alert("✅ Đăng nhập thành công: " + auth.user.username);
+        }, function(error) {
+          console.error('Lỗi đăng nhập:', error);
+          alert("❌ Lỗi đăng nhập: " + error);
+        });
       }
-    }
 
-    async function pay() {
-      const paymentData = {
-        amount: 0.01,
-        memo: "Test for Tranmusickingdom",
-        metadata: { app: "Tranmusickingdom", purpose: "test" }
-      };
+      // Thanh toán 0.01 Pi
+      function pay() {
+        const paymentData = {
+          amount: 0.01,
+          memo: "Test for Tranmusickingdom",
+          metadata: { purpose: "test", app: "Tranmusickingdom" }
+        };
 
-      Pi.createPayment(paymentData, {
-        onReadyForServerApproval: function (paymentId) {
-          alert("✅ Giao dịch đã tạo: " + paymentId);
-          console.log("onReadyForServerApproval", paymentId);
-
-          // 👉 Không có backend, chỉ log ra. Nếu có server, bạn cần gọi API duyệt ở đây.
-        },
-        onReadyForServerCompletion: function (paymentId, txid) {
-          alert("📦 Giao dịch hoàn tất: " + txid);
-          console.log("onReadyForServerCompletion", txid);
-        },
-        onCancel: function (paymentId) {
-          alert("❌ Giao dịch bị huỷ.");
-          console.log("onCancel", paymentId);
-        },
-        onError: function (error) {
-          alert("🚫 Lỗi: " + error);
-          console.error(error);
-        }
-      });
-    }
-
-    function onIncomplete(paymentId) {
-      alert("⚠️ Pi chưa hoàn tất bước xác minh!");
-    }
-  </script>
-</body>
+        Pi.createPayment(paymentData, {
+          onReadyForServerApproval: function(paymentId) {
+            console.log("Ready for server approval", paymentId);
+            // Không có backend → bỏ qua
+          },
+          onReadyForServerCompletion: function(paymentId, txid) {
+            console.log("Ready for server completion", paymentId, txid);
+            // Không có backend → bỏ qua
+          },
+          onCancel: function(paymentId) {
+            console.log("Người dùng hủy", paymentId);
+            alert("❌ Người dùng đã huỷ giao dịch.");
+          },
+          onError: function(error, payment) {
+            console.error("Lỗi:", error);
+            alert("⚠️ Lỗi giao dịch: " + error);
+          }
+        });
+      }
+    </script>
+  </body>
 </html>
