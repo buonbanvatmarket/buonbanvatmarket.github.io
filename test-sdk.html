@@ -17,15 +17,23 @@
   <button onclick="makePayment()">💰 Test Thanh Toán</button>
 
   <script>
-    // 👉 Phải gọi init() trước
-    window.addEventListener('load', function () {
-      if (window.Pi) {
-        Pi.init({ version: "2.0", sandbox: false }); // Sử dụng sandbox: true nếu muốn test offline
-        console.log("✅ Pi SDK Initialized");
-      } else {
-        alert("❌ SDK Pi chưa được inject. Hãy mở qua Pi Browser với pi://...");
-      }
-    });
+    // 🛠️ Sửa lỗi "SDK was not initialized"
+    function waitForPiAndInit(maxWait = 5000) {
+      const start = Date.now();
+      const checkPi = () => {
+        if (window.Pi) {
+          Pi.init({ version: "2.0", sandbox: false });
+          console.log("✅ Pi SDK Initialized!");
+        } else if (Date.now() - start < maxWait) {
+          setTimeout(checkPi, 100);
+        } else {
+          alert("❌ Không khởi tạo được Pi SDK. Hãy chắc chắn mở bằng Pi Browser (pi://...)");
+        }
+      };
+      checkPi();
+    }
+
+    window.addEventListener("load", waitForPiAndInit);
 
     async function login() {
       try {
