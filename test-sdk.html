@@ -39,10 +39,28 @@
     function payWithPi() {
       Pi.createPayment({
         amount: 3.14,
-        memo: "Test thanh toán Pi",
-        metadata: { type: "test", item: "demo" }
-      }, {
-        onReadyForServerApproval: function(paymentId) {
-          console.log("Ready for server approval", paymentId);
-        },
-        onReady
+       function payWithPi() {
+  Pi.createPayment({
+    amount: 0.01,
+    memo: "Test thanh toán Pi",
+    metadata: { type: "test", user: "tranmarket" }
+  }, {
+    onReadyForServerApproval: function(paymentId) {
+      console.log("✅ Ready for server approval:", paymentId);
+      alert("Đã tạo giao dịch! ID: " + paymentId);
+    },
+    onReadyForServerCompletion: function(paymentId, txid) {
+      console.log("✅ Transaction completed:", txid);
+      alert("Hoàn tất giao dịch! TXID: " + txid);
+    },
+    onCancel: function(paymentId) {
+      console.log("❌ User cancelled:", paymentId);
+      alert("Giao dịch đã bị huỷ!");
+    },
+    onError: function(error, paymentId) {
+      console.error("🚨 Lỗi xảy ra:", error);
+      alert("Lỗi: " + error);
+    }
+  });
+}
+ 
