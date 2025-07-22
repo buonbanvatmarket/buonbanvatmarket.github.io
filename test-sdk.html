@@ -1,66 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
+  <meta charset="UTF-8">
   <title>BuonBanVat SDK Test</title>
+  <!-- Load Pi SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+
+  <script>
+    // Gọi init ngay sau khi load SDK
+    window.onload = function () {
+      Pi.init({
+        version: "2.0",
+        sandbox: true
+      });
+    };
+
+    function loginWithPi() {
+      Pi.authenticate(['username'], function(auth) {
+        alert("Đăng nhập thành công: " + JSON.stringify(auth));
+      }, function(err) {
+        alert("Lỗi đăng nhập: " + err);
+      });
+    }
+
+    function testPayment() {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test payment for BuonBanVat",
+        metadata: { purpose: "test", app: "BuonBanVat" },
+        sandbox: true
+      };
+
+      Pi.createPayment(paymentData, {
+        onReadyForServerApproval: function(paymentId) {
+          alert("Server cần duyệt: " + paymentId);
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          alert("Giao dịch thành công. TXID: " + txid);
+        },
+        onCancel: function(paymentId) {
+          alert("Người dùng đã hủy: " + paymentId);
+        },
+        onError: function(error, paymentId) {
+          alert("Lỗi rồi: " + error);
+        }
+      });
+    }
+  </script>
 </head>
 <body>
   <h1>🛒 BuonBanVat SDK Test</h1>
   <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
-  <button id="login-button">Login with Pi</button>
-  <button id="pay-button">💳 Thanh toán thử 0.01 Pi</button>
-  <p>🧪 Đây chỉ là phiên bản test sandbox. Không có Pi thực sự được chuyển.</p>
 
-  <script>
-    const Pi = window.Pi;
+  <button onclick="loginWithPi()">Login with Pi</button>
+  <button onclick="testPayment()">💳 Thanh toán thử 0.01 Pi</button>
 
-    // 1. Login
-    document.getElementById("login-button").addEventListener("click", async () => {
-      try {
-        const scopes = ["username", "payments"];
-        const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
-        alert(`Logged in as: ${authResult.user?.username || "undefined"}`);
-      } catch (error) {
-        alert(`Login failed: ${error}`);
-      }
-    });
-
-    // 2. Test Pi Payment
-    document.getElementById("pay-button").addEventListener("click", async () => {
-      const paymentData = {
-        amount: 0.01,
-        memo: "Test payment for BuonBanVat",
-        metadata: { purpose: "sandbox-test", app: "BuonBanVat" },
-        sandbox: true // 👈 để test offline không cần backend
-      };
-
-      try {
-        const payment = await Pi.createPayment(paymentData, {
-          onReadyForServerApproval: (paymentId) => {
-            console.log("Payment ready for server approval", paymentId);
-            // Tự động approve trong sandbox
-            Pi.approvePayment(paymentId);
-          },
-          onReadyForServerCompletion: (paymentId, txid) => {
-            console.log("Payment ready for server completion", paymentId, txid);
-            Pi.completePayment(paymentId);
-          },
-          onCancel: (paymentId) => {
-            console.log("Payment cancelled", paymentId);
-          },
-          onError: (error, payment) => {
-            console.error("Payment error", error);
-          }
-        });
-      } catch (error) {
-        alert(`Thanh toán lỗi: ${error}`);
-      }
-    });
-
-    // 3. Xử lý các thanh toán chưa hoàn tất
-    async function onIncompletePaymentFound(payment) {
-      console.log("Found incomplete payment", payment);
-    }
-  </script>
+  <p>🧪 Đây chỉ là phiên bản test <strong>Sandbox</strong>. Không có Pi thực sự được chuyển.</p>
 </body>
 </html>
