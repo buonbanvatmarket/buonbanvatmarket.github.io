@@ -1,57 +1,74 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>BuonBanVat SDK Test</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script>
-    // Khởi tạo SDK (rất quan trọng, phải trước mọi lệnh)
-    window.Pi.init({ version: "2.0", sandbox: false });
-
-    async function login() {
-      try {
-        const scopes = ['username', 'payments'];
-        const user = await window.Pi.authenticate(scopes);
-        alert("✅ Đăng nhập thành công: " + user.username);
-      } catch (err) {
-        alert("❌ Lỗi đăng nhập: " + err.message);
-      }
-    }
-
-    async function pay() {
-      try {
-        const paymentData = {
-          amount: 0.01,
-          memo: "Test thanh toán Pi",
-          metadata: { purpose: "SDK test", app: "BuonBanVat" }
-        };
-        const payment = await window.Pi.createPayment(paymentData);
-        alert("💰 Giao dịch gửi đi: " + JSON.stringify(payment));
-      } catch (err) {
-        alert("❌ Không thể tạo giao dịch: " + err.message);
-      }
-    }
-  </script>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 40px;
-    }
-    h1 {
-      font-size: 24px;
-    }
-    button {
-      font-size: 18px;
-      padding: 10px 20px;
-      margin: 10px;
-    }
+    body { font-family: sans-serif; text-align: center; padding: 30px; }
+    button { font-size: 20px; margin: 10px; padding: 10px 20px; }
   </style>
 </head>
 <body>
   <h1>🛒 BuonBanVat SDK Test</h1>
   <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
-  <button onclick="login()">🔐 Đăng nhập Pi</button>
-  <button onclick="pay()">💰 Thanh toán 0.01 Pi</button>
+
+  <button onclick="login()">🔐 Login Pi</button>
+  <button onclick="makePayment()">💰 Test Thanh Toán</button>
+
+  <script>
+    // 👉 Phải gọi init() trước
+    window.addEventListener('load', function () {
+      if (window.Pi) {
+        Pi.init({ version: "2.0", sandbox: false }); // Sử dụng sandbox: true nếu muốn test offline
+        console.log("✅ Pi SDK Initialized");
+      } else {
+        alert("❌ SDK Pi chưa được inject. Hãy mở qua Pi Browser với pi://...");
+      }
+    });
+
+    async function login() {
+      try {
+        const scopes = ['username', 'payments'];
+        const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
+        alert(`✅ Đăng nhập thành công: ${authResult.user.username}`);
+      } catch (err) {
+        alert(`❌ Lỗi đăng nhập: ${err}`);
+      }
+    }
+
+    async function makePayment() {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test thanh toán Pi",
+        metadata: { purpose: "test", app: "BuonBanVat" }
+      };
+
+      try {
+        const payment = await Pi.createPayment(paymentData, {
+          onReadyForServerApproval: function (paymentId) {
+            console.log("✅ Sẵn sàng duyệt:", paymentId);
+          },
+          onReadyForServerCompletion: function (paymentId, txid) {
+            console.log("✅ Sẵn sàng hoàn tất:", paymentId, txid);
+          },
+          onCancel: function (paymentId) {
+            alert("❌ Giao dịch bị hủy.");
+          },
+          onError: function (error, payment) {
+            alert("❌ Lỗi giao dịch: " + error);
+          }
+        });
+
+        alert("✅ Giao dịch đã tạo: " + payment.identifier);
+      } catch (err) {
+        alert("❌ Không thể tạo giao dịch: " + err);
+      }
+    }
+
+    function onIncompletePaymentFound(payment) {
+      console.warn("⚠️ Incomplete payment found:", payment);
+    }
+  </script>
 </body>
 </html>
