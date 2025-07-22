@@ -1,57 +1,53 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>TranMarket Pi SDK Test</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
-<body>
-  <h1>TranMarket Pi SDK Test</h1>
-  <button onclick="login()">Login with Pi</button>
-  <button onclick="pay()">Test Pi Payment</button>
+  <head>
+    <title>TranMarket Pi SDK Test</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+    <script>
+      Pi.init({ version: "2.0" });
+    </script>
+  </head>
+  <body>
+    <h1>TranMarket Pi SDK Test</h1>
+    <button onclick="loginWithPi()">Login with Pi</button>
+    <button onclick="testPayment()">Test Pi Payment</button>
 
-  <script>
-    // Gọi Pi.init() sau khi DOM đã sẵn sàng và SDK load xong
-    document.addEventListener("DOMContentLoaded", function () {
-      if (typeof Pi !== 'undefined' && Pi.init) {
-        Pi.init({ version: "2.0" });
-        console.log("✅ Pi SDK initialized!");
-      } else {
-        console.error("❌ Pi SDK not found. Make sure you're using Pi Browser.");
-        alert("Pi SDK not found. Please open in Pi Browser.");
-      }
-    });
-
-    // Hàm login
-    function login() {
-      Pi.authenticate(['username'], function(auth) {
-        alert("Logged in as: " + auth.user.username);
-      }, function(error) {
-        alert("Login failed: " + error);
-      });
-    }
-
-    // Hàm payment demo
-    function pay() {
-      Pi.createPayment({
-        amount: 0.001,
-        memo: "Test payment from TranMarket",
-        metadata: { type: "test" }
-      }, {
-        onReadyForServerApproval: function(paymentId) {
-          alert("Ready for approval: " + paymentId);
-        },
-        onReadyForServerCompletion: function(paymentId, txid) {
-          alert("Payment completed: " + paymentId + " | TxID: " + txid);
-        },
-        onCancel: function(paymentId) {
-          alert("Payment cancelled: " + paymentId);
-        },
-        onError: function(error, paymentId) {
-          alert("Payment failed: " + error);
+    <script>
+      async function loginWithPi() {
+        try {
+          const scopes = ['username', 'payments'];
+          const user = await Pi.authenticate(scopes);
+          alert(`Logged in as: ${user.username}`);
+        } catch (err) {
+          alert(`Login failed: ${err}`);
         }
-      });
-    }
-  </script>
-</body>
+      }
+
+      async function testPayment() {
+        try {
+          const paymentData = {
+            amount: 0.001,
+            memo: "Test payment",
+            metadata: { type: "test" }
+          };
+          const payment = await Pi.createPayment(paymentData, {
+            onReadyForServerApproval: function(paymentId) {
+              console.log("Ready for server approval:", paymentId);
+            },
+            onCancel: function(paymentId) {
+              console.log("Cancelled:", paymentId);
+            },
+            onError: function(error, paymentId) {
+              console.log("Error:", error, paymentId);
+            },
+            onReadyForServerCompletion: function(paymentId, txid) {
+              console.log("Ready for server completion:", paymentId, txid);
+            },
+          });
+        } catch (err) {
+          alert("Payment failed: " + err);
+        }
+      }
+    </script>
+  </body>
 </html>
