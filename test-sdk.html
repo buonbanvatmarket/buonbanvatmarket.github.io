@@ -1,56 +1,39 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>TranMarket Pi SDK Test</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    <script>
-      Pi.init({ version: "2.0" });
-      Pi.authenticate = Pi.authenticate;
-      Pi.createPayment = Pi.createPayment;
-    </script>
-  </head>
-  <body>
-    <h1>TranMarket Pi SDK Test</h1>
-    <button onclick="loginWithPi()">Login with Pi</button>
-    <button onclick="testPayment()">Test Pi Payment</button>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>BuonBanVat - SDK Test</title>
+  <script>
+    function testPiPayment() {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test SDK cho BuonBanVatMarket",
+        metadata: { purpose: "test", app: "BuonBanVatMarket" },
+        sandbox: true
+      };
 
-    <script>
-      async function loginWithPi() {
-        try {
-          const scopes = ["username", "payments"];
-          const user = await Pi.authenticate(scopes);
-          alert("Logged in as: " + user.username);
-        } catch (err) {
-          alert("Login failed: " + err);
+      window.Pi.createPayment(paymentData, {
+        onReadyForServerApproval: function (paymentId) {
+          alert("✅ Đợi server duyệt: " + paymentId);
+        },
+        onReadyForServerCompletion: function (paymentId, txid) {
+          alert("🎉 Giao dịch thành công! TXID: " + txid);
+        },
+        onCancel: function (paymentId) {
+          alert("❌ Người dùng đã hủy: " + paymentId);
+        },
+        onError: function (error, paymentId) {
+          alert("⚠️ Lỗi: " + error);
         }
-      }
-
-      async function testPayment() {
-        try {
-          const paymentData = {
-            amount: 0.001,
-            memo: "Test payment",
-            metadata: { type: "test" }
-          };
-
-          const payment = await Pi.createPayment(paymentData, {
-            onReadyForServerApproval: function (paymentId) {
-              console.log("Ready for server approval:", paymentId);
-            },
-            onCancel: function (paymentId) {
-              console.log("Cancelled:", paymentId);
-            },
-            onError: function (error, paymentId) {
-              console.log("Error:", error, paymentId);
-            },
-            onReadyForServerCompletion: function (paymentId, txid) {
-              console.log("Ready for server completion:", paymentId, txid);
-            }
-          });
-        } catch (err) {
-          alert("Payment failed: " + err);
-        }
-      }
-    </script>
-  </body>
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>🛒 BuonBanVat SDK Test</h1>
+  <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
+  <button onclick="testPiPayment()">💳 Thanh toán thử 0.01 Pi</button>
+  <hr>
+  <p>🧪 Đây chỉ là phiên bản test sandbox. Không có Pi thực sự được chuyển.</p>
+</body>
 </html>
