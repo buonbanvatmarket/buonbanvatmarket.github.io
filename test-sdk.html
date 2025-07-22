@@ -1,55 +1,63 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>BuonBanVat SDK Test</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
-<body>
-  <h1>🛒 BuonBanVat SDK Test</h1>
-  <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BuonBanVat SDK Test</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  </head>
+  <body>
+    <h1>🛒 BuonBanVat SDK Test</h1>
+    <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
 
-  <button onclick="onLogin()">🔑 Login Pi</button>
-  <button onclick="onPay()">💸 Thanh Toán Test</button>
+    <button id="login-button">🔑 Login Pi</button>
+    <button id="pay-button">💸 Thanh Toán Test</button>
 
-  <script>
-    Pi.init({
-      version: "2.0",
-      sandbox: true
-    });
+    <script>
+      // 🧠 1. Initialize SDK — thêm scope "payments"
+      Pi.init({
+        version: "2.0",
+        sandbox: true,
+        appId: "buonbanvatmarket",
+        scopes: ["username", "payments"], // Phải có "payments"
+      });
 
-    let currentUser = null;
+      // 🧪 2. Login Handler
+      document.getElementById("login-button").addEventListener("click", () => {
+        Pi.authenticate(
+          ["username", "payments"],
+          function (auth) {
+            alert("Đăng nhập thành công:\n" + JSON.stringify(auth));
+          },
+          function (error) {
+            alert("Login failed: " + error);
+          }
+        );
+      });
 
-    async function onLogin() {
-      try {
-        const scopes = ['username', 'payments'];
-        const result = await Pi.authenticate(scopes);
-        currentUser = result.user;
-        alert("Đăng nhập thành công: " + currentUser.username);
-      } catch (error) {
-        alert("Login thất bại: " + error);
-      }
-    }
-
-    async function onPay() {
-      if (!currentUser) {
-        alert("Vui lòng đăng nhập trước khi thanh toán.");
-        return;
-      }
-
-      const paymentData = {
-        amount: 0.01,
-        memo: "Test payment BuonBanVat",
-        metadata: { purpose: "test" }
-      };
-
-      try {
-        const payment = await Pi.createPayment(paymentData);
-        alert("Thanh toán thành công: " + JSON.stringify(payment));
-      } catch (error) {
-        alert("Thanh toán lỗi: " + error);
-      }
-    }
-  </script>
-</body>
+      // 💳 3. Payment Handler
+      document.getElementById("pay-button").addEventListener("click", () => {
+        Pi.createPayment(
+          {
+            amount: 0.001,
+            memo: "Thanh toán test Pi SDK",
+            metadata: { item: "Test SDK" },
+          },
+          {
+            onReadyForServerApproval: function (paymentId) {
+              alert("Ready for server approval: " + paymentId);
+            },
+            onReadyForServerCompletion: function (paymentId, txid) {
+              alert("Ready for server completion: " + paymentId + "\nTXID: " + txid);
+            },
+            onCancel: function (paymentId) {
+              alert("Thanh toán bị huỷ: " + paymentId);
+            },
+            onError: function (error, payment) {
+              alert("Thanh toán lỗi: " + error);
+            },
+          }
+        );
+      });
+    </script>
+  </body>
 </html>
