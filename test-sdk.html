@@ -4,10 +4,6 @@
   <meta charset="UTF-8">
   <title>TranMarket Pi SDK Test</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script>
-    // Khởi tạo SDK ngay sau khi load script
-    Pi.init({ version: "2.0" });
-  </script>
 </head>
 <body>
   <h1>TranMarket Pi SDK Test</h1>
@@ -15,6 +11,17 @@
   <button onclick="pay()">Test Pi Payment</button>
 
   <script>
+    // Gọi Pi.init() sau khi DOM đã sẵn sàng và SDK load xong
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof Pi !== 'undefined' && Pi.init) {
+        Pi.init({ version: "2.0" });
+        console.log("✅ Pi SDK initialized!");
+      } else {
+        console.error("❌ Pi SDK not found. Make sure you're using Pi Browser.");
+        alert("Pi SDK not found. Please open in Pi Browser.");
+      }
+    });
+
     // Hàm login
     function login() {
       Pi.authenticate(['username'], function(auth) {
