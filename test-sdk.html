@@ -1,39 +1,66 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>BuonBanVat - SDK Test</title>
-  <script>
-    function testPiPayment() {
-      const paymentData = {
-        amount: 0.01,
-        memo: "Test SDK cho BuonBanVatMarket",
-        metadata: { purpose: "test", app: "BuonBanVatMarket" },
-        sandbox: true
-      };
-
-      window.Pi.createPayment(paymentData, {
-        onReadyForServerApproval: function (paymentId) {
-          alert("✅ Đợi server duyệt: " + paymentId);
-        },
-        onReadyForServerCompletion: function (paymentId, txid) {
-          alert("🎉 Giao dịch thành công! TXID: " + txid);
-        },
-        onCancel: function (paymentId) {
-          alert("❌ Người dùng đã hủy: " + paymentId);
-        },
-        onError: function (error, paymentId) {
-          alert("⚠️ Lỗi: " + error);
-        }
-      });
-    }
-  </script>
+  <title>BuonBanVat SDK Test</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
   <h1>🛒 BuonBanVat SDK Test</h1>
   <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
-  <button onclick="testPiPayment()">💳 Thanh toán thử 0.01 Pi</button>
-  <hr>
+  <button id="login-button">Login with Pi</button>
+  <button id="pay-button">💳 Thanh toán thử 0.01 Pi</button>
   <p>🧪 Đây chỉ là phiên bản test sandbox. Không có Pi thực sự được chuyển.</p>
+
+  <script>
+    const Pi = window.Pi;
+
+    // 1. Login
+    document.getElementById("login-button").addEventListener("click", async () => {
+      try {
+        const scopes = ["username", "payments"];
+        const authResult = await Pi.authenticate(scopes, onIncompletePaymentFound);
+        alert(`Logged in as: ${authResult.user?.username || "undefined"}`);
+      } catch (error) {
+        alert(`Login failed: ${error}`);
+      }
+    });
+
+    // 2. Test Pi Payment
+    document.getElementById("pay-button").addEventListener("click", async () => {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test payment for BuonBanVat",
+        metadata: { purpose: "sandbox-test", app: "BuonBanVat" },
+        sandbox: true // 👈 để test offline không cần backend
+      };
+
+      try {
+        const payment = await Pi.createPayment(paymentData, {
+          onReadyForServerApproval: (paymentId) => {
+            console.log("Payment ready for server approval", paymentId);
+            // Tự động approve trong sandbox
+            Pi.approvePayment(paymentId);
+          },
+          onReadyForServerCompletion: (paymentId, txid) => {
+            console.log("Payment ready for server completion", paymentId, txid);
+            Pi.completePayment(paymentId);
+          },
+          onCancel: (paymentId) => {
+            console.log("Payment cancelled", paymentId);
+          },
+          onError: (error, payment) => {
+            console.error("Payment error", error);
+          }
+        });
+      } catch (error) {
+        alert(`Thanh toán lỗi: ${error}`);
+      }
+    });
+
+    // 3. Xử lý các thanh toán chưa hoàn tất
+    async function onIncompletePaymentFound(payment) {
+      console.log("Found incomplete payment", payment);
+    }
+  </script>
 </body>
 </html>
