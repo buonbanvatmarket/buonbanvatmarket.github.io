@@ -13,25 +13,30 @@
   <button onclick="onPay()">💸 Thanh Toán Test</button>
 
   <script>
-    // KHỞI TẠO SDK SỚM NHẤT
     Pi.init({
       version: "2.0",
       sandbox: true
     });
 
-    // LOGIN
+    let currentUser = null;
+
     async function onLogin() {
       try {
         const scopes = ['username', 'payments'];
         const result = await Pi.authenticate(scopes);
-        alert("Đăng nhập thành công: " + result.user.username);
+        currentUser = result.user;
+        alert("Đăng nhập thành công: " + currentUser.username);
       } catch (error) {
-        alert("Login failed: " + error);
+        alert("Login thất bại: " + error);
       }
     }
 
-    // THANH TOÁN
     async function onPay() {
+      if (!currentUser) {
+        alert("Vui lòng đăng nhập trước khi thanh toán.");
+        return;
+      }
+
       const paymentData = {
         amount: 0.01,
         memo: "Test payment BuonBanVat",
