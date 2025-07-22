@@ -1,53 +1,60 @@
-<!-- test-sdk.html (chạy trong Pi Browser) -->
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Tranmusickingdom SDK Test</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  </head>
-  <body>
-    <h1>🎶 Tranmusickingdom SDK Test</h1>
-    <button onclick="login()">Đăng nhập</button>
-    <button onclick="pay()">Test thanh toán</button>
+<head>
+  <title>Tranmusickingdom SDK Test</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body>
+  <h1>🎶 Tranmusickingdom SDK Test</h1>
+  <button onclick="login()">Đăng nhập</button>
+  <button onclick="pay()">Test thanh toán</button>
 
-    <script>
-      Pi.init({ version: "2.0", sandbox: false }); // Đặt true nếu test không cần ví thật
+  <script>
+    Pi.init({ version: "2.0", sandbox: false });
 
-      async function login() {
-        try {
-          const user = await Pi.authenticate(["username"], onIncomplete);
-          alert("✅ Đăng nhập thành công: " + user.username);
-        } catch (error) {
-          alert("❌ Lỗi đăng nhập: " + error);
+    async function login() {
+      try {
+        const user = await Pi.authenticate(["username"], onIncomplete);
+        alert("✅ Đăng nhập thành công: " + user.username);
+        console.log("User:", user);
+      } catch (error) {
+        alert("❌ Lỗi đăng nhập: " + error);
+        console.error(error);
+      }
+    }
+
+    async function pay() {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test for Tranmusickingdom",
+        metadata: { app: "Tranmusickingdom", purpose: "test" }
+      };
+
+      Pi.createPayment(paymentData, {
+        onReadyForServerApproval: function (paymentId) {
+          alert("✅ Giao dịch đã tạo: " + paymentId);
+          console.log("onReadyForServerApproval", paymentId);
+
+          // 👉 Không có backend, chỉ log ra. Nếu có server, bạn cần gọi API duyệt ở đây.
+        },
+        onReadyForServerCompletion: function (paymentId, txid) {
+          alert("📦 Giao dịch hoàn tất: " + txid);
+          console.log("onReadyForServerCompletion", txid);
+        },
+        onCancel: function (paymentId) {
+          alert("❌ Giao dịch bị huỷ.");
+          console.log("onCancel", paymentId);
+        },
+        onError: function (error) {
+          alert("🚫 Lỗi: " + error);
+          console.error(error);
         }
-      }
+      });
+    }
 
-      async function pay() {
-        const paymentData = {
-          amount: 0.01,
-          memo: "Test for Tranmusickingdom",
-          metadata: { app: "Tranmusickingdom", test: true }
-        };
-
-        Pi.createPayment(paymentData, {
-          onReadyForServerApproval: function (paymentId) {
-            alert("✅ Giao dịch đã tạo: " + paymentId);
-          },
-          onCancel: function (paymentId) {
-            alert("❌ Giao dịch bị hủy.");
-          },
-          onError: function (error) {
-            alert("🚫 Lỗi thanh toán: " + error);
-          },
-          onReadyForServerCompletion: function (paymentId, txid) {
-            alert("✅ Giao dịch sẵn sàng hoàn tất: " + txid);
-          }
-        });
-      }
-
-      function onIncomplete(paymentId) {
-        alert("⚠️ Pi chưa hoàn tất bước xác minh!");
-      }
-    </script>
-  </body>
+    function onIncomplete(paymentId) {
+      alert("⚠️ Pi chưa hoàn tất bước xác minh!");
+    }
+  </script>
+</body>
 </html>
