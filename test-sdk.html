@@ -1,68 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TranMarket Pi SDK Test</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding-top: 50px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 10px;
-    }
-  </style>
-  <!-- Nhúng SDK Pi -->
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
-<body>
-  <h1>TranMarket Pi SDK Test</h1>
-  <button onclick="loginWithPi()">Login with Pi</button>
-  <button onclick="payWithPi()">Test Pi Payment</button>
+<html>
+  <head>
+    <title>TranMarket Pi SDK Test</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  </head>
+  <body>
+    <h1>TranMarket Pi SDK Test</h1>
+    <button onclick="loginWithPi()">Login with Pi</button>
+    <button onclick="testPayment()">Test Pi Payment</button>
 
-  <script>
-    // Khởi tạo Pi SDK ở chế độ Sandbox
-    Pi.init({ version: "2.0", sandbox: true });
-
-    function loginWithPi() {
-      Pi.authenticate([], function onSuccess(auth) {
-        alert("🟢 Đăng nhập thành công: " + JSON.stringify(auth));
-        console.log("Auth success:", auth);
-      }, function onFailure(error) {
-        alert("🔴 Đăng nhập thất bại: " + error);
-        console.error("Auth error:", error);
-      });
-    }
-
-    function payWithPi() {
-      Pi.createPayment({
-        amount: 0.01,
-        memo: "Test thanh toán Pi",
-        metadata: { type: "test", user: "tranmarket" }
-      }, {
-        onReadyForServerApproval: function(paymentId) {
-          console.log("💬 Chờ phê duyệt server:", paymentId);
-          alert("🕓 Đã tạo giao dịch ID: " + paymentId);
-        },
-        onReadyForServerCompletion: function(paymentId, txid) {
-          console.log("✅ Giao dịch hoàn tất:", txid);
-          alert("✅ Giao dịch hoàn tất. TXID: " + txid);
-        },
-        onCancel: function(paymentId) {
-          console.warn("❌ Giao dịch bị huỷ:", paymentId);
-          alert("❌ Giao dịch đã bị huỷ.");
-        },
-        onError: function(error, paymentId) {
-          console.error("🚫 Lỗi giao dịch:", error);
-          alert("🚫 Lỗi xảy ra: " + error);
+    <script>
+      async function loginWithPi() {
+        try {
+          const scopes = ['username', 'payments'];
+          const response = await window.Pi.authenticate(scopes);
+          alert('Logged in as: ' + response.user.username);
+        } catch (err) {
+          alert('Login failed: ' + err);
         }
-      });
-    }
-  </script>
-</body>
+      }
+
+      async function testPayment() {
+        try {
+          const paymentData = {
+            amount: 0.001,
+            memo: "Test payment",
+            metadata: { type: "test" }
+          };
+          const payment = await Pi.createPayment(paymentData, {
+            onReadyForServerApproval: function (paymentId) {
+              console.log('Ready for server approval', paymentId);
+            },
+            onReadyForServerCompletion: function (paymentId, txid) {
+              console.log('Ready for server completion', paymentId, txid);
+            },
+            onCancel: function (paymentId) {
+              console.log('Cancelled', paymentId);
+            },
+            onError: function (error, paymentId) {
+              console.log('Error', error, paymentId);
+            }
+          });
+        } catch (err) {
+          alert('Payment failed: ' + err);
+        }
+      }
+    </script>
+  </body>
 </html>
