@@ -1,61 +1,59 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <title>BuonBanVat SDK Test</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  </head>
-  <body>
-    <h1>🛒 BuonBanVat SDK Test</h1>
-    <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
+<head>
+  <meta charset="UTF-8">
+  <title>BuonBanVat SDK Test</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body>
+  <h1>🛒 BuonBanVat SDK Test</h1>
+  <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
 
-    <button id="login-button">🔑 Login Pi</button>
-    <button id="pay-button">💸 Thanh Toán Test</button>
+  <button onclick="loginWithPi()">🔐 Login Pi</button>
+  <button onclick="testPayment()">💰 Test Thanh Toán</button>
 
-    <script>
-      window.addEventListener("load", () => {
-        if (window.Pi) {
-          Pi.init({
-            version: "2.0",
-            sandbox: true,
-            appId: "buonbanvatmarket",
-            scopes: ["username", "payments"],
-          });
+  <script>
+    // Khởi tạo SDK
+    Pi.init({ version: "2.0", sandbox: true });
 
-          console.log("✅ Pi SDK initialized!");
-        } else {
-          alert("❌ Pi SDK chưa sẵn sàng. Vui lòng tải lại bằng Pi Browser.");
+    // Đăng nhập Pi với scope "payments"
+    function loginWithPi() {
+      Pi.authenticate(["username", "payments"],
+        function(auth) {
+          alert("✅ Đăng nhập thành công:\n" + JSON.stringify(auth));
+        },
+        function(error) {
+          alert("❌ Login lỗi:\n" + error);
         }
+      );
+    }
 
-        // Nút Login
-        document.getElementById("login-button").addEventListener("click", () => {
-          Pi.authenticate(
-            ["username", "payments"],
-            (auth) => alert("✅ Đăng nhập thành công:\n" + JSON.stringify(auth)),
-            (error) => alert("❌ Login thất bại: " + error)
-          );
-        });
+    // Hàm test thanh toán
+    function testPayment() {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test for BuonBanVat",
+        metadata: { purpose: "test", app: "BuonBanVat" },
+        sandbox: true
+      };
 
-        // Nút Thanh toán
-        document.getElementById("pay-button").addEventListener("click", () => {
-          Pi.createPayment(
-            {
-              amount: 0.001,
-              memo: "Test SDK thanh toán",
-              metadata: { item: "TestItem" },
-            },
-            {
-              onReadyForServerApproval: (paymentId) =>
-                alert("🟡 Ready for Approval: " + paymentId),
-              onReadyForServerCompletion: (paymentId, txid) =>
-                alert("🟢 Thành công: " + paymentId + "\nTXID: " + txid),
-              onCancel: (paymentId) => alert("⚪ Bị huỷ: " + paymentId),
-              onError: (err, payment) =>
-                alert("❌ Thanh toán lỗi: " + err + "\nChi tiết: " + JSON.stringify(payment)),
-            }
-          );
-        });
-      });
-    </script>
-  </body>
+      Pi.createPayment(paymentData,
+        {
+          onReadyForServerApproval: function(paymentId) {
+            alert("⏳ Chờ server approve: " + paymentId);
+          },
+          onReadyForServerCompletion: function(paymentId, txid) {
+            alert("✅ Giao dịch hoàn tất! TxID: " + txid);
+          },
+          onCancel: function(paymentId) {
+            alert("❌ Người dùng huỷ thanh toán.");
+          },
+          onError: function(error, payment) {
+            alert("❌ Lỗi thanh toán: " + error);
+          }
+        }
+      );
+    }
+  </script>
+</body>
 </html>
