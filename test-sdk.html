@@ -8,51 +8,53 @@
 <body>
   <h1>🛒 BuonBanVat SDK Test</h1>
   <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
-
   <button onclick="loginWithPi()">🔐 Login Pi</button>
   <button onclick="testPayment()">💰 Test Thanh Toán</button>
 
   <script>
-    // Khởi tạo SDK
-    Pi.init({ version: "2.0", sandbox: true });
+    let accessToken = null;
 
-    // Đăng nhập Pi với scope "payments"
-    function loginWithPi() {
-      Pi.authenticate(["username", "payments"],
-        function(auth) {
-          alert("✅ Đăng nhập thành công:\n" + JSON.stringify(auth));
-        },
-        function(error) {
-          alert("❌ Login lỗi:\n" + error);
-        }
-      );
+    async function loginWithPi() {
+      try {
+        const scopes = ['username'];
+        const result = await Pi.authenticate(scopes, onIncompletePaymentFound);
+        accessToken = result.accessToken;
+        alert("Đăng nhập thành công với: " + result.user.username);
+      } catch (error) {
+        alert("Lỗi đăng nhập: " + error.message);
+      }
     }
 
-    // Hàm test thanh toán
-    function testPayment() {
+    async function testPayment() {
       const paymentData = {
         amount: 0.01,
         memo: "Test for BuonBanVat",
-        metadata: { purpose: "test", app: "BuonBanVat" },
+        metadata: {
+          purpose: "test-payment",
+          app: "BuonBanVat"
+        },
         sandbox: true
       };
 
-      Pi.createPayment(paymentData,
-        {
-          onReadyForServerApproval: function(paymentId) {
-            alert("⏳ Chờ server approve: " + paymentId);
+      try {
+        const payment = await Pi.createPayment(paymentData, {
+          onReadyForServerApproval: function (paymentId) {
+            alert("Payment ready: " + paymentId);
           },
-          onReadyForServerCompletion: function(paymentId, txid) {
-            alert("✅ Giao dịch hoàn tất! TxID: " + txid);
+          onCancel: function () {
+            alert("Giao dịch bị hủy.");
           },
-          onCancel: function(paymentId) {
-            alert("❌ Người dùng huỷ thanh toán.");
-          },
-          onError: function(error, payment) {
-            alert("❌ Lỗi thanh toán: " + error);
+          onError: function (error) {
+            alert("Lỗi thanh toán: " + error.message);
           }
-        }
-      );
+        });
+      } catch (error) {
+        alert("Lỗi tạo payment: " + error.message);
+      }
+    }
+
+    function onIncompletePaymentFound(payment) {
+      alert("Incomplete payment found: " + payment.id);
     }
   </script>
 </body>
