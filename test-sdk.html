@@ -1,60 +1,47 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>BuonBanVat SDK Test</title>
-  <!-- Load Pi SDK -->
+  <title>Tranmusickingdom SDK Test</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-
-  <script>
-    // Gọi init ngay sau khi load SDK
-    window.onload = function () {
-      Pi.init({
-        version: "2.0",
-        sandbox: true
-      });
-    };
-
-    function loginWithPi() {
-      Pi.authenticate(['username'], function(auth) {
-        alert("Đăng nhập thành công: " + JSON.stringify(auth));
-      }, function(err) {
-        alert("Lỗi đăng nhập: " + err);
-      });
-    }
-
-    function testPayment() {
-      const paymentData = {
-        amount: 0.01,
-        memo: "Test payment for BuonBanVat",
-        metadata: { purpose: "test", app: "BuonBanVat" },
-        sandbox: true
-      };
-
-      Pi.createPayment(paymentData, {
-        onReadyForServerApproval: function(paymentId) {
-          alert("Server cần duyệt: " + paymentId);
-        },
-        onReadyForServerCompletion: function(paymentId, txid) {
-          alert("Giao dịch thành công. TXID: " + txid);
-        },
-        onCancel: function(paymentId) {
-          alert("Người dùng đã hủy: " + paymentId);
-        },
-        onError: function(error, paymentId) {
-          alert("Lỗi rồi: " + error);
-        }
-      });
-    }
-  </script>
 </head>
 <body>
-  <h1>🛒 BuonBanVat SDK Test</h1>
+  <h1>🛒 Tranmusickingdom SDK Test</h1>
   <p>Chào mừng đến với bản thử nghiệm chức năng thanh toán Pi.</p>
 
-  <button onclick="loginWithPi()">Login with Pi</button>
-  <button onclick="testPayment()">💳 Thanh toán thử 0.01 Pi</button>
+  <button onclick="login()">Login with Pi</button>
+  <button onclick="pay()">Test Payment</button>
 
-  <p>🧪 Đây chỉ là phiên bản test <strong>Sandbox</strong>. Không có Pi thực sự được chuyển.</p>
+  <script>
+    // ⚠️ KHỞI TẠO SDK
+    Pi.init({
+      version: "2.0",
+      sandbox: true
+    });
+
+    async function login() {
+      try {
+        const scopes = ['username', 'payments'];
+        const authResult = await Pi.authenticate(scopes);
+        alert(`Đăng nhập thành công: ${authResult.user.username}`);
+      } catch (error) {
+        alert("Login failed: " + error);
+      }
+    }
+
+    async function pay() {
+      const paymentData = {
+        amount: 0.01,
+        memo: "Test payment from Tranmusickingdom",
+        metadata: { purpose: "test", app: "Tranmusickingdom" }
+      };
+
+      try {
+        const payment = await Pi.createPayment(paymentData);
+        alert("Thanh toán thành công: " + JSON.stringify(payment));
+      } catch (error) {
+        alert("Thanh toán lỗi: " + error);
+      }
+    }
+  </script>
 </body>
 </html>
